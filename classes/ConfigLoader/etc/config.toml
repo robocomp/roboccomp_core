@@ -1,0 +1,42 @@
+[CommonBehavior]
+Endpoints = "tcp -p 10000"
+
+[TopicManager]
+# This property is used by the clients to connect to IceStorm
+Proxy = "IceStorm/TopicManager:default -p 9999"
+
+[Paths]
+InnerModelPath = "innermodel.xml"
+
+[Joystick]
+Adapter = "JoystickAdapter"
+
+[joystickUniversal]
+Device = "/dev/input/js0"
+NumAxes = 3
+
+# Ejes del joystick con los parámetros (nombre, eje, mínimo, máximo, invertido, zona_muerta)
+Axis_0 = { name = "rotate", axis = 3, min = -2, max = 2, inverted = false, dead_zone = 0.1 }
+Axis_1 = { name = "advance", axis = 1, min = -800, max = 800, inverted = true, dead_zone = 80 }
+Axis_2 = { name = "side", axis = 0, min = -800, max = 800, inverted = true, dead_zone = 80 }
+
+NumButtons = 5
+
+# Botones del joystick con los parámetros (nombre, botón, valor)
+Button_0 = { name = "stop", button = 3, value = 1 }
+Button_1 = { name = "joystick_control", button = 2, value = 1 }
+Button_2 = { name = "block", button = 1, value = 1 }
+Button_3 = { name = "vibrator_test", button = 6, value = 1 }
+Button_4 = { name = "speed_test", button = 7, value = 1 }
+
+[Period]
+Compute = 100
+Emergency = 500
+
+
+[Ice.Warn]
+Connections = 0
+
+[Ice.Trace]
+Network = 0
+Protocol = 0
