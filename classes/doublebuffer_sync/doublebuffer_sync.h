@@ -4,13 +4,14 @@
 // circular buffer (queue like but with random access support) used to transfer data
 // between threads. It can be used to synchronize multiple data sources in one
 // consumer using a timestamp. For example, between the main thread of a
-// component and the (threaded) middleware stubs Example of Buffer creation with
-// default converters between input and output types:
+// component and the (threaded) middleware stubs
+//
+// Examples of Buffer creation with default converters between input and output types:
 //
 //      decl:     (Internally creates a queue for each data source)
 //           BufferSync<InOut<RoboCompLaser::TLaserData, RoboCompLaser::TLaserData>, InOut<std::string, std::string>> buffer;
 //      use:
-//           auto timestamp = get_timestamp();
+//           auto timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 //           buffer.put<0>(std::move(laserData), timestamp); // inserts the laser data value to the queue 0.
 //
 //           buffer.put<1>("foo", timestamp);  Inserts the laser data value to the queue 1.
@@ -20,23 +21,23 @@
 //           auto [laser, str] = buffer.read(timestamp, max_diff);  Returns the nearest values to a timestamp given a max_difference. auto
 //
 //           [laser, str] = buffer.read_first();  Returns the first element of the queues. It doesn't check difference
-//           Advanced use: can return unexpected values if not handled carefully.
-//           between timestamps, so results may be wrong if there are missing values in some of the queues.
+//           Advanced use: can return unexpected values if not handled carefully between timestamps,
+//           so results may be wrong if there are missing values in some of the queues.
 //
-//           auto [laser, str] = buffer.read_last();  Returns the first elements of the queues. It can return inconsistent values if some
+//           auto [laser, str] = buffer.read_last();  Returns the last elements of the queues. It can return inconsistent values if some
 //           queue was not populated with the last timestamp.
 //
-//           auto [laser, str] = buffer.read_last(max_diff);  Returns the first elements of the queues. It only returns the last element
+//           auto [laser, str] = buffer.read_last(max_diff);  Returns the last elements of the queues. It only returns the last element
 //           from queues when the difference between the last timestamp and the last element of the queues in less than `max_diff`.
+//
 //           It is also possible to use the functions to retrieve elements  from specific queues only.
-
 //           auto str = buffer.read<0>(timestamp);  Only returns the element from the first InOut<std::string, std::string> queue.
 //
-// Every read operation returns a value from the circular queue without consuming it, returns an optional
-// and allows passing a max_time_diff to consider two values part of the same
-// time group.
+//          Every read operation returns a value from the circular queue without consuming it, returns an optional
+//          and allows passing a max_time_diff to consider two values part of the same
+//          time group.
 //
-// Example of Buffer creation with user-defined converter (lambda) from input  to output types:
+//      Example of Buffer creation with user-defined converter (lambda) from input  to output types:
 //
 //      decl:
 //          BufferSync<InOut<RoboCompLaser::TLaserData, RoboCompLaser::TLaserData>> laser_buffer;
@@ -174,7 +175,7 @@ template <class... DBs> class BufferSync
         size_t queue_size;
 
     public:
-        BufferSync() : worker(1), queue_size(10) {};
+        BufferSync() : worker(1), queue_size(1) {};
         BufferSync(size_t size) : worker(1), queue_size(size) {};
         ~BufferSync() {};
 
@@ -197,7 +198,7 @@ template <class... DBs> class BufferSync
         }
 
         /**
-        * 'read_first' is a template method that returns the first elements from the data buffers without removing them.
+        * 'read_first' is a template method that returns the first elements (OLDEST) from the data buffers without removing them.
         * The template parameters 'idx...' represent the indices of the data buffers.
         * The method first creates a tuple 'ret' of optional output types for each data buffer.
         * If the buffer is empty (checked by 'empty.load()'), the method returns 'ret' immediately.
@@ -252,7 +253,7 @@ template <class... DBs> class BufferSync
 
         /**
         * This version of 'read_last' is a template function that takes a variadic template argument 'idx...'. This argument represents the indices of the data buffers.
-        * The function retrieves the last elements from the data buffers at these indices.
+        * The function retrieves the last elements (NEWEST) from the data buffers at these indices.
         * The function first creates a tuple 'ret' of optional output types for each data buffer.
         * If the buffer is empty, the function returns 'ret' immediately.
         * Otherwise, it locks the buffer for shared access using a 'std::shared_lock'.
