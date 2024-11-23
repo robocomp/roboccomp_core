@@ -61,7 +61,7 @@
 #include <type_traits>
 #include <vector>
 
-#include "threadpool.h"
+#include <threadpool/threadpool.h>
 
 using namespace std::chrono_literals;
 
