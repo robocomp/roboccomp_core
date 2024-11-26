@@ -1,12 +1,3 @@
-/****************************************************************************
-* File name: ConfigLoader.h
-* Author: Alejandro Torrejon Harto
-* Date: 21/11/2024
-* Description:  Header file for the ConfigLoader class, designed to load,
-*              parse, and manage configuration data from TOML and text files.
-*              Supports type-safe access to configuration values and 
-*              provides utilities for loading and printing configuration data.
-****************************************************************************/
 
 #ifndef CONFIG_LOADER_H
 #define CONFIG_LOADER_H
@@ -23,7 +14,11 @@
 
 
 // Alias for configuration types
-using ConfigTypes = std::variant<int, double, std::string, bool>;
+using ConfigTypes = std::variant<int, double, std::string, bool, 
+                                 std::vector<int>, 
+                                 std::vector<double>, 
+                                 std::vector<std::string>, 
+                                 std::vector<bool>>;
 
 /**
  * @class ConfigLoader
@@ -37,6 +32,7 @@ private:
     bool isInteger(const std::string& str) const;
     bool isDouble(const std::string& str) const;
     bool isBoolean(const std::string& str, bool& result) const;
+    bool isString(const std::string& str) const;
 
     // Helper to process a line from a text configuration file
     void processLine(const std::string& line);
@@ -44,6 +40,12 @@ private:
     // Loaders for specific file types
     void loadTxt(const std::string& filename);
     void loadToml(const std::string& filename);
+
+    ConfigTypes processArray(const toml::array& array);
+    ConfigTypes processSimpleValue(const toml::node& value);
+
+    template <typename T>
+    static std::string vectorToString(const std::vector<T>& vec);
 
     // Recursive processing of TOML tables
     void processTomlTable(const toml::table& table, const std::string& prefix = "");
@@ -58,6 +60,8 @@ public:
      */
     template <typename T>
     T get(const std::string& key) const;
+
+    ConfigTypes get(const std::string& key) const;
 
     /**
      * @brief Loads a configuration file (TOML or text format).
