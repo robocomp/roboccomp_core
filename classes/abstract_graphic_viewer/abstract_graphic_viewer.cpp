@@ -43,7 +43,7 @@ std::tuple<QGraphicsPolygonItem*, QGraphicsEllipseItem*> AbstractGraphicViewer::
     robot_polygon = scene.addPolygon(poly2, QPen(color), brush);
     laser_in_robot_sr = new QGraphicsEllipseItem(-30, -30, 60, 60, robot_polygon);
     laser_in_robot_sr->setBrush(QBrush(QColor("White")));
-    scene.addItem(laser_in_robot_sr);
+    //scene.addItem(laser_in_robot_sr);
     laser_in_robot_sr->setPos(laser_x_offset, laser_y_offset);
     robot_polygon->setZValue(55);
     robot_polygon->setPos(0, 0);

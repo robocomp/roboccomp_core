@@ -1,9 +1,9 @@
 // Use: 
 /* 
-  	Timer clock; // Timer<milliseconds, steady_clock>
+  	Timer<> clock; // Timer<milliseconds, steady_clock>
 	clock.tick();
 		code you want to measure 
-	clock.tock();
+	clock.tock() or clock.print()
 */
 
 #ifndef ROBOCOMP_TIMER_H
@@ -42,10 +42,10 @@ namespace rc
             return std::chrono::duration_cast<T>(_end - _start).count();
         }
         template<class T = DT>
-        void print()
+        void print(std::string_view msg = "")
         {
             tock();
-            std::cout << "Elapsed (ms): "  << std::chrono::duration_cast<T>(_end - _start).count() << std::endl;
+            std::cout << msg << " Elapsed (ms): "  << std::chrono::duration_cast<T>(_end - _start).count() << std::endl;
         }
     };
 }
